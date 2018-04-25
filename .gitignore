@@ -1,0 +1,11 @@
+*.csv
+.classpath
+.project
+.vscode
+.settings
+.gradle
+bin/
+build/
+target/
+libs/
+sync.sh
