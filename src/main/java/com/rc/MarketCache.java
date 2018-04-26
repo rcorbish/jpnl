@@ -27,14 +27,14 @@ public class MarketCache {
 	final private Map<String,Float> firstOrderFactor ;
 	final private Map<String,Float> secondOrderFactor ;
 	
-	final private Charset cs = Charset.forName("UTF8") ;
+	final static private Charset cs = Charset.forName("UTF8") ;
 	
-	public MarketCache( Path t, Path y ) throws IOException {
-		
-		today = readFile(t) ;
-		yesterday = readFile(y) ;
+	public MarketCache() throws IOException {
+
+		today = readFile( Options.todaysFile) ;
+		yesterday = readFile( Options.yesterdaysFile ) ;
 		firstOrderFactor = new HashMap<>() ;
-		secondOrderFactor = new HashMap<>() ;
+		secondOrderFactor = new HashMap<>() ;	
 		
 		for( Map.Entry<String, Float> e : today.entrySet() ) {
 			Float yf = yesterday.get( e.getKey() ) ;
@@ -44,10 +44,11 @@ public class MarketCache {
 		}
 	}
 
-	public String getFactorKey( CSVRecord record ) {
+	protected String getFactorKey( CSVRecord record ) {
 		StringJoiner sj = new StringJoiner( "/" ) ;
-		sj.add( record.get("Factor") ) ;
-		sj.add( record.get("Tenor") ) ;
+		for( String k : Options.marketKeys ) {
+			sj.add( record.get( k ) ) ;
+		}
 		return sj.toString() ;
 	}
 
@@ -94,10 +95,11 @@ public class MarketCache {
 			Iterable<CSVRecord> records = psv.parse(br);
 			for (CSVRecord record : records) {
 				String key = getFactorKey(record) ;
-			    float val = Float.valueOf( record.get("Value") ) ;
+			    float val = Float.valueOf( record.get( Options.marketValue ) ) ;
 			    rc.put( key, val ) ;
 			}
 		}
+		
 		log.info( "Found {} records", rc.size() ) ;
 		return rc ;
 	}

@@ -22,6 +22,7 @@ public class Main {
 
 	public static void main( String args[] ) {
 		try {
+			Options.init( args ) ;
 			Main self = new Main() ;
 			self.process();
 		} catch( Throwable t ) {
@@ -30,6 +31,8 @@ public class Main {
 		}
 	}
 
+	
+	//
 	// Do the actual processing
 	//
 	// Read in two days of mkt data and compute
@@ -44,17 +47,10 @@ public class Main {
 	private void process() throws IOException {
 		log.info( "Processing" ) ;
 		
-		Path t = Paths.get( "T.csv" ) ;
-		Path y = Paths.get( "Y.csv" ) ;
-		MarketCache market = new MarketCache( t, y ) ;
-
-		// output to be written here
-		Path p = Paths.get( "P.csv" ) ;
+		MarketCache market = new MarketCache() ;
 		
-		try( TaylorExpander expander = new TaylorExpander( market, p ) ) {
-			// input sensitivity file
-			Path r = Paths.get( "R.csv" ) ;
-			expander.expandFile( r ) ;
+		try( TaylorExpander expander = new TaylorExpander( market ) ) {
+			expander.expandFile( Options.riskFile ) ;
 		}
 	}
 }

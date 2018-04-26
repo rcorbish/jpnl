@@ -27,12 +27,13 @@ public class TaylorExpander implements AutoCloseable {
 	private final MarketCache marketCache ;
 	private final CSVPrinter csvPrinter ;
 	private final NumberFormat formatter ;
-
-	private final Charset cs = Charset.forName("UTF8") ;
 	
-	public TaylorExpander( MarketCache market, Path target ) throws IOException {
+	private static final Charset cs = Charset.forName("UTF8") ;
+	
+	public TaylorExpander( MarketCache market ) throws IOException {
 		this.marketCache = market ;
-		csvPrinter = CSVFormat.EXCEL.withHeader("Tenor", "Currency", "Factor", "Value", "Measure" ).print( target, cs ) ;
+		csvPrinter = CSVFormat.EXCEL.withHeader( Options.outputHeaders )
+				.print( Options.outputFile, cs ) ;
 		formatter = new DecimalFormat( "0.######" ) ;
 	}
 
@@ -65,7 +66,7 @@ public class TaylorExpander implements AutoCloseable {
 				} catch( Throwable t ) {
 					log.error( "Failure in {} at row {}", path, rowCount, t ) ;
 					numErrors++ ;
-					if( numErrors > 50 ) {
+					if( numErrors > Options.maxErrors ) {
 						log.warn( "Too many errors - processing aborted" ) ;
 						break ;
 					}
